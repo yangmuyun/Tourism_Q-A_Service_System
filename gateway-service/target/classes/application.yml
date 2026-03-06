@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+    gateway:
+      routes:
+        - id: chat-service-route
+          uri: lb://chat-service
+          predicates:
+            - Path=/api/chat/**
+          filters:
+            - StripPrefix=0
+        - id: knowledge-service-route
+          uri: lb://chat-service
+          predicates:
+            - Path=/api/knowledge/**
+          filters:
+            - StripPrefix=0
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"   # 只保留前端地址
+            allowedMethods:
+              - "GET"
+              - "POST"
+              - "PUT"    # 确保有这个
+              - "DELETE" # 确保有这个
+              - "OPTIONS"
+            allowedHeaders: [ "*" ]
+            allowCredentials: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
